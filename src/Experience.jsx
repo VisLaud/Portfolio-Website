@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   Environment,
   Float,
@@ -6,12 +7,31 @@ import {
   ContactShadows,
   Html,
   Text,
+  useAnimations,
 } from '@react-three/drei';
+import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 
 export default function Experience() {
-  const laptop = useGLTF(
-    'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/macbook/model.gltf'
-  );
+  const [finishedAnimation, setFinishedAnimation] = useState(false);
+
+  const laptop = useGLTF('./laptop/laptop.glb');
+  const animation = useAnimations(laptop.animations, laptop.scene);
+
+  useEffect(() => {
+    const action = animation.actions['TopAction'];
+    action.play();
+    action.setLoop(THREE.LoopOnce);
+    action.clampWhenFinished = true;
+  }, []);
+
+  useFrame((state, delta) => {
+    const action = animation.actions['TopAction'];
+    if (!action.isPlaying && action.time >= action.getClip().duration) {
+      setFinishedAnimation(true);
+    }
+  });
+
   return (
     <>
       <Environment preset="sunset" />
@@ -43,7 +63,9 @@ export default function Experience() {
             position={[0, 0.33, -1.4]}
             rotation-x={-0.25}
           >
-            <iframe src="https://simantathapa.netlify.app/" />
+            {finishedAnimation && (
+              <iframe src="https://simantathapa.netlify.app/" />
+            )}
           </Html>
           <Text
             font="./bangers-v20-latin-regular.woff"
