@@ -11,12 +11,20 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
+import { useSpring, animated } from '@react-spring/three';
 
 export default function Experience() {
   const [finishedAnimation, setFinishedAnimation] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const laptop = useGLTF('./laptop/laptop.glb');
   const animation = useAnimations(laptop.animations, laptop.scene);
+
+  const [introAnimation, setIntroAnimation] = useSpring(() => ({
+    position: [0, -5, 0],
+  }));
+
+  const [screenZoom, setScreenZoom] = useSpring(() => ({}));
 
   useEffect(() => {
     const action = animation.actions['TopAction'];
@@ -24,6 +32,13 @@ export default function Experience() {
     action.setLoop(THREE.LoopOnce);
     action.clampWhenFinished = true;
   }, []);
+
+  useEffect(() => {
+    setIntroAnimation({
+      position: [0, 0, 0],
+      config: { mass: 3, tension: 400, friction: 50 },
+    });
+  }, [setIntroAnimation]);
 
   useFrame((state, delta) => {
     const action = animation.actions['TopAction'];
@@ -55,7 +70,9 @@ export default function Experience() {
             rotation={[-0.1, Math.PI, 0]}
             position={[0, 0.55, -1.15]}
           />
-          <primitive object={laptop.scene} position-y={-1.2} />
+          <animated.group {...introAnimation}>
+            <primitive object={laptop.scene} position-y={-1.2} />
+          </animated.group>
           <Html
             transform
             wrapperClass="htmlScreen"
