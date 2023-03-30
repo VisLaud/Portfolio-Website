@@ -24,8 +24,6 @@ export default function Experience() {
     position: [0, -5, 0],
   }));
 
-  const [screenZoom, setScreenZoom] = useSpring(() => ({}));
-
   useEffect(() => {
     const action = animation.actions['TopAction'];
     action.play();
@@ -40,6 +38,23 @@ export default function Experience() {
     });
   }, [setIntroAnimation]);
 
+  useEffect(() => {
+    if (isHovered) {
+      setIntroAnimation({
+        position: [-2.35, 0.5, 3],
+        rotation: [0, -0.6, 0],
+        config: { mass: 3, tension: 400, friction: 50 },
+      });
+    }
+    if (!isHovered) {
+      setIntroAnimation({
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+        config: { mass: 3, tension: 400, friction: 50 },
+      });
+    }
+  }, [isHovered, setIntroAnimation]);
+
   useFrame((state, delta) => {
     const action = animation.actions['TopAction'];
     if (!action.isPlaying && action.time >= action.getClip().duration) {
@@ -47,41 +62,55 @@ export default function Experience() {
     }
   });
 
+  //to-do fix this
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      const modelContainer = document.querySelector('container-model');
+      console.log(modelContainer);
+      if (modelContainer && !modelContainer.contains(event.target)) {
+        setIsHovered(false);
+      }
+    };
+    window.addEventListener('click', handleOutsideClick);
+    return () => {
+      window.removeEventListener('click', handleOutsideClick);
+    };
+  }, []);
+
   return (
     <>
       <Environment preset="sunset" />
 
       <color args={['#695b5b']} attach="background" />
 
-      <PresentationControls
-        global
-        rotation={[0.13, 0.1, 0]}
-        polar={[-0.4, 0.2]}
-        azimuth={[-1, 0.75]}
-        config={{ mass: 2, tension: 400 }}
-        snap={{ mass: 4, tension: 400 }}
-      >
-        <Float rotationIntensity={0.4}>
-          <rectAreaLight
-            width={2.5}
-            height={1.65}
-            intensity={65}
-            color={'#ff6900'}
-            rotation={[-0.1, Math.PI, 0]}
-            position={[0, 0.55, -1.15]}
+      <Float rotationIntensity={0.4}>
+        <rectAreaLight
+          width={2.5}
+          height={1.65}
+          intensity={65}
+          color={'#ff6900'}
+          rotation={[-0.1, Math.PI, 0]}
+          position={[0, 0.55, -1.15]}
+        />
+        <animated.group {...introAnimation}>
+          <primitive
+            object={laptop.scene}
+            position-y={-1.2}
+            onClick={() => setIsHovered(!isHovered)}
+            {...{ className: 'container-model' }}
           />
-          <animated.group {...introAnimation}>
-            <primitive object={laptop.scene} position-y={-1.2} />
-          </animated.group>
           <Html
             transform
             wrapperClass="htmlScreen"
-            distanceFactor={1.17}
+            distanceFactor={0.6}
             position={[0, 0.33, -1.4]}
             rotation-x={-0.25}
           >
             {finishedAnimation && (
-              <iframe src="https://simantathapa.netlify.app/" />
+              <iframe
+                src="https://simantathapa.netlify.app/"
+                {...introAnimation}
+              />
             )}
           </Html>
           <Text
@@ -93,8 +122,8 @@ export default function Experience() {
           >
             Simanta Thapa
           </Text>
-        </Float>
-      </PresentationControls>
+        </animated.group>
+      </Float>
       <ContactShadows position-y={-1.5} opacity={0.4} scale={5} blur={2.4} />
     </>
   );
