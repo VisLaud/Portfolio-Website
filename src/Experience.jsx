@@ -41,7 +41,7 @@ export default function Experience() {
   useEffect(() => {
     if (isHovered) {
       setIntroAnimation({
-        position: [-2.35, 0.5, 3],
+        position: [-2.0, 0.3, 3],
         rotation: [0, -0.6, 0],
         config: { mass: 3, tension: 400, friction: 50 },
       });
@@ -65,7 +65,7 @@ export default function Experience() {
   //to-do fix this
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      const modelContainer = document.querySelector('container-model');
+      const modelContainer = document.querySelector('.selected-model');
       console.log(modelContainer);
       if (modelContainer && !modelContainer.contains(event.target)) {
         setIsHovered(false);
@@ -77,13 +77,18 @@ export default function Experience() {
     };
   }, []);
 
+  const handleSelect = (event) => {
+    event.object.userData.className = 'selected-model';
+    setIsHovered(!isHovered);
+  };
+
   return (
     <>
       <Environment preset="sunset" />
 
-      <color args={['#695b5b']} attach="background" />
+      <color args={['#eeaf61']} attach="background" />
 
-      <Float rotationIntensity={0.4}>
+      <Float rotationIntensity={isHovered ? 0 : 0.4} speed={isHovered ? 0 : 1}>
         <rectAreaLight
           width={2.5}
           height={1.65}
@@ -96,8 +101,7 @@ export default function Experience() {
           <primitive
             object={laptop.scene}
             position-y={-1.2}
-            onClick={() => setIsHovered(!isHovered)}
-            {...{ className: 'container-model' }}
+            onClick={handleSelect}
           />
           <Html
             transform
@@ -107,10 +111,7 @@ export default function Experience() {
             rotation-x={-0.25}
           >
             {finishedAnimation && (
-              <iframe
-                src="https://simantathapa.netlify.app/"
-                {...introAnimation}
-              />
+              <iframe src="https://st-page.vercel.app/" {...introAnimation} />
             )}
           </Html>
           <Text
