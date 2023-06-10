@@ -3,7 +3,6 @@ import {
   Environment,
   Float,
   useGLTF,
-  PresentationControls,
   ContactShadows,
   Html,
   Text,
@@ -85,7 +84,6 @@ export default function Experience() {
   return (
     <>
       <Environment preset="sunset" />
-
       <color args={['#eeaf61']} attach="background" />
 
       <Float rotationIntensity={isHovered ? 0 : 0.4} speed={isHovered ? 0 : 1}>
